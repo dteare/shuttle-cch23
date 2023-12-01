@@ -12,14 +12,14 @@ fn calculate(path: PathBuf) -> Result<String, Status> {
     let mut acc: isize = 0;
     let mut count = 0;
 
-    for el in path.into_iter() {
-        count = count + 1;
+    for el in path.iter() {
+        count += 1;
         if count > 20 {
             return Err(Status::BadRequest);
         }
 
         match parse_os_str_to_i32(el) {
-            Ok(i) => acc = acc ^ i,
+            Ok(i) => acc ^= i,
             Err(_) => return Err(Status::BadRequest),
         }
     }
