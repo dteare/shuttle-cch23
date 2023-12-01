@@ -1,7 +1,7 @@
+use rocket::http::Status;
+use rocket::{get, routes};
 use std::ffi::OsStr;
 use std::path::PathBuf;
-use rocket::{get, routes};
-use rocket::http::Status;
 
 pub fn routes() -> Vec<rocket::Route> {
     routes![calculate]
@@ -19,12 +19,8 @@ fn calculate(path: PathBuf) -> Result<String, Status> {
         }
 
         match parse_os_str_to_i32(el) {
-            Ok(i) => {
-                acc = acc ^ i
-            },
-            Err(_) => {
-                return Err(Status::BadRequest)
-            }
+            Ok(i) => acc = acc ^ i,
+            Err(_) => return Err(Status::BadRequest),
         }
     }
     let result = acc.pow(3);
@@ -33,9 +29,10 @@ fn calculate(path: PathBuf) -> Result<String, Status> {
 
 fn parse_os_str_to_i32(os_str: &OsStr) -> Result<isize, &'static str> {
     let str_slice = os_str.to_str().ok_or("String conversion failed")?;
-    str_slice.parse::<isize>().map_err(|_| "Parse to isize failed")
+    str_slice
+        .parse::<isize>()
+        .map_err(|_| "Parse to isize failed")
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -50,7 +47,6 @@ mod tests {
         // Calculate the expected result: (10)**3 = 1000
         assert_eq!(result, "1000".to_string());
     }
-
 
     #[test]
     fn test_calculate_success_2() {

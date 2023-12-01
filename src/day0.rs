@@ -1,5 +1,5 @@
-use rocket::{get, routes};
 use rocket::http::Status;
+use rocket::{get, routes};
 
 pub fn routes() -> Vec<rocket::Route> {
     routes![index, error]
