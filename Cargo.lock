@@ -233,7 +233,9 @@ dependencies = [
 name = "cch23-joy"
 version = "0.1.0"
 dependencies = [
+ "base64",
  "rocket",
+ "serde",
  "shuttle-rocket",
  "shuttle-runtime",
  "tokio",

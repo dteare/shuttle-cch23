@@ -4,7 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+base64 = "0.21.5"
 rocket = { version = "0.5.0", features = ["json"] }
+serde = { version = "1.0", features = ["derive"] }
 shuttle-rocket = "0.34.0"
 shuttle-runtime = "0.34.0"
 tokio = "1.26.0"
