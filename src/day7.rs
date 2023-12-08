@@ -4,6 +4,7 @@ use rocket::http::{CookieJar, Status};
 use rocket::serde::json::{serde_json, Json};
 use rocket::serde::{Deserialize, Serialize};
 use rocket::{get, routes};
+use std::collections::HashMap;
 
 pub fn routes() -> Vec<rocket::Route> {
     routes![bake, decode]
@@ -36,39 +37,14 @@ fn decode(cookies: &CookieJar<'_>) -> Result<String, Status> {
 }
 
 #[derive(Deserialize, Serialize)]
-struct Recipe {
-    flour: usize,
-    sugar: usize,
-    butter: usize,
-
-    #[serde(rename = "baking powder")]
-    baking_powder: usize,
-
-    #[serde(rename = "chocolate chips")]
-    chocolate_chips: usize,
-}
-#[derive(Deserialize, Serialize)]
-struct Pantry {
-    flour: usize,
-    sugar: usize,
-    butter: usize,
-
-    #[serde(rename = "baking powder")]
-    baking_powder: usize,
-
-    #[serde(rename = "chocolate chips")]
-    chocolate_chips: usize,
-}
-
-#[derive(Deserialize, Serialize)]
 struct BakeRequest {
-    recipe: Recipe,
-    pantry: Pantry,
+    recipe: HashMap<String, usize>,
+    pantry: HashMap<String, usize>,
 }
 #[derive(Deserialize, Serialize)]
 struct BakeResponse {
     cookies: usize,
-    pantry: Pantry,
+    pantry: HashMap<String, usize>,
 }
 #[get("/bake")]
 fn bake(cookies: &CookieJar<'_>) -> Result<Json<BakeResponse>, Status> {
@@ -83,39 +59,42 @@ fn bake(cookies: &CookieJar<'_>) -> Result<Json<BakeResponse>, Status> {
     }
 }
 
-fn calc_baked_cookies(recipe: Recipe, pantry: Pantry) -> BakeResponse {
+fn calc_baked_cookies(
+    recipe: HashMap<String, usize>,
+    mut pantry: HashMap<String, usize>,
+) -> BakeResponse {
     let mut cookies = 0;
 
-    let mut flour = pantry.flour;
-    let mut sugar = pantry.sugar;
-    let mut butter = pantry.butter;
-    let mut baking_powder = pantry.baking_powder;
-    let mut chocolate_chips = pantry.chocolate_chips;
+    // Bake until you can't bake no more
+    loop {
+        let mut can_bake = true;
 
-    while flour >= recipe.flour
-        && sugar >= recipe.sugar
-        && butter >= recipe.butter
-        && baking_powder >= recipe.baking_powder
-        && chocolate_chips >= recipe.chocolate_chips
-    {
+        for (ingredient, amount_needed) in &recipe {
+            match pantry.get(ingredient) {
+                Some(amount) => {
+                    if *amount < *amount_needed {
+                        can_bake = false;
+                        break;
+                    }
+                }
+                None => can_bake = false,
+            }
+        }
+
+        if !can_bake {
+            break;
+        }
+
+        // Remove ingredients from pantry
         cookies += 1;
-
-        flour -= recipe.flour;
-        sugar -= recipe.sugar;
-        butter -= recipe.butter;
-        baking_powder -= recipe.baking_powder;
-        chocolate_chips -= recipe.chocolate_chips;
+        for (ingredient, amount_needed) in &recipe {
+            *pantry.get_mut(ingredient).unwrap() -= *amount_needed;
+        }
     }
 
     BakeResponse {
         cookies,
-        pantry: Pantry {
-            flour,
-            sugar,
-            butter,
-            baking_powder,
-            chocolate_chips,
-        },
+        pantry: pantry,
     }
 }
 
