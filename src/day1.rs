@@ -7,7 +7,7 @@ pub fn routes() -> Vec<rocket::Route> {
     routes![calculate]
 }
 
-#[get("/1/<path..>")]
+#[get("/<path..>")]
 fn calculate(path: PathBuf) -> Result<String, Status> {
     let mut acc: isize = 0;
     let mut count = 0;

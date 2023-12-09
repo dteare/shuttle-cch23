@@ -110,7 +110,7 @@ mod tests {
     #[tokio::test]
     async fn test_drop_momentum() {
         let pikachu = load_pokemon(25).await.unwrap();
-        let weight = pikachu.weight as f32 / 10.0;
+        let weight = pikachu.weight as f64 / 10.0;
         let velocity = velocity_from_falling_distance(10.0);
         let momentum = momentum(weight, velocity);
         assert_eq!(format!("{:.3}", momentum), "84.107");
