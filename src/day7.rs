@@ -132,10 +132,7 @@ mod test {
     fn test_decode_success() {
         let rocket = rocket::build().mount("/", routes![decode]);
         let client = Client::tracked(rocket).expect("valid rocket instance");
-        let cookie = Cookie::new(
-            "recipe",
-            base64::encode("recipe=eyJmbG91ciI6MTAwLCJjaG9jb2xhdGUgY2hpcHMiOjIwfQ=="),
-        );
+        let cookie = Cookie::new("recipe", "eyJmbG91ciI6MTAwLCJjaG9jb2xhdGUgY2hpcHMiOjIwfQ==");
         let response = client.get("/decode").cookie(cookie).dispatch();
         assert_eq!(response.status(), Status::Ok);
         assert_eq!(
@@ -158,7 +155,7 @@ mod test {
         let rocket = rocket::build().mount("/", routes![decode]);
         let client = Client::tracked(rocket).expect("valid rocket instance");
         let invalid_utf8 = [0, 159, 146, 150]; // Invalid UTF-8 bytes
-        let cookie = Cookie::new("recipe", base64::encode(&invalid_utf8));
+        let cookie = Cookie::new("recipe", general_purpose::STANDARD.encode(invalid_utf8));
         let response = client.get("/decode").cookie(cookie).dispatch();
         assert_eq!(response.status(), Status::BadRequest);
     }
