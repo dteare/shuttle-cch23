@@ -1,5 +1,4 @@
 use base64::{engine::general_purpose, Engine as _};
-use rocket::http::Cookie;
 use rocket::http::{CookieJar, Status};
 use rocket::serde::json::{serde_json, Json};
 use rocket::serde::{Deserialize, Serialize};
