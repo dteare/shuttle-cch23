@@ -6,7 +6,7 @@ use serde::Deserialize;
 use thiserror::Error;
 
 pub fn routes() -> Vec<rocket::Route> {
-    routes![weight]
+    routes![drop, weight]
 }
 
 #[derive(Error, Debug)]
@@ -46,6 +46,32 @@ async fn weight(pokedex_number: usize) -> Result<String, Status> {
     }
 }
 
+#[get("/drop/<pokedex_number>")]
+async fn drop(pokedex_number: usize) -> Result<String, Status> {
+    let weight = weight(pokedex_number).await?;
+    let weight: f64 = weight.parse().unwrap();
+
+    let velocity = velocity_from_falling_distance(10.0);
+    let momentum = momentum(weight, velocity);
+
+    println!("Velocity: {:?}", velocity);
+    println!(
+        "Momentum of a {:?}kg pokemon falling 10m: {:?}",
+        weight, momentum
+    );
+
+    // Return momentum with maximum precision
+    Ok(format!("{}", momentum))
+}
+
+fn momentum(mass: f64, velocity: f64) -> f64 {
+    mass * velocity
+}
+
+fn velocity_from_falling_distance(distance: f64) -> f64 {
+    (2.0 * 9.825 * distance).sqrt()
+}
+
 async fn load_pokemon(id: usize) -> Result<Pokemon, PokemonApiError> {
     // Use reqwest to fetch the pokemon from the pokeapi
     let url = format!("https://pokeapi.co/api/v2/pokemon/{}", id);
@@ -63,7 +89,7 @@ async fn load_pokemon(id: usize) -> Result<Pokemon, PokemonApiError> {
 mod tests {
     use super::*;
 
-    #[test]
+    #[tokio::test]
     async fn test_load_pikaku() {
         let pikachu = load_pokemon(25).await.unwrap();
         assert_eq!(pikachu.name, "pikachu");
@@ -72,12 +98,21 @@ mod tests {
         assert_eq!(pikachu.id, 25);
     }
 
-    #[test]
+    #[tokio::test]
     async fn test_bad_input() {
-        let pikachu = load_pokemon(99999999999);
-        assert_eq!(
-            pikachu.err().unwrap(),
-            PokemonApiError::InvalidPokedexNumber
-        );
+        if let Err(PokemonApiError::InvalidPokedexNumber) = load_pokemon(99999999999).await {
+            // Test passes
+        } else {
+            panic!("Expected InvalidPokedexNumber error");
+        }
+    }
+
+    #[tokio::test]
+    async fn test_drop_momentum() {
+        let pikachu = load_pokemon(25).await.unwrap();
+        let weight = pikachu.weight as f32 / 10.0;
+        let velocity = velocity_from_falling_distance(10.0);
+        let momentum = momentum(weight, velocity);
+        assert_eq!(format!("{:.3}", momentum), "84.107");
     }
 }

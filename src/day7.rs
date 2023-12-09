@@ -124,6 +124,7 @@ fn recipe_from_cookie(cookies: &CookieJar<'_>) -> Result<String, Status> {
 #[cfg(test)]
 mod test {
     use super::*;
+    use rocket::http::Cookie;
     use rocket::http::Status;
     use rocket::local::blocking::Client;
 
