@@ -44,7 +44,7 @@ pub async fn red_pixels(form: Form<BullMode<'_>>) -> Result<String, Status> {
     })?;
 
     let mut magical_red = 0;
-    for (x, y, pixel) in img.pixels() {
+    for (_x, _y, pixel) in img.pixels() {
         let rgb = pixel.to_rgb();
         let (r, g, b) = (rgb[0], rgb[1], rgb[2]);
 
