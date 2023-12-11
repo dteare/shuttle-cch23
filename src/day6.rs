@@ -8,19 +8,20 @@ pub fn routes() -> Vec<rocket::Route> {
 
 #[post("/", data = "<raw>")]
 fn elf_count(raw: &str) -> Json<HashMap<String, usize>> {
-    let mut map = HashMap::new();
-
     let elf_count = raw.matches("elf").count();
     let elf_on_a_shelf_count = raw.matches("elf on a shelf").count();
     let shelf_count = raw.matches("shelf").count();
 
-    map.insert("elf".to_string(), elf_count);
-    map.insert("elf on a shelf".to_string(), elf_on_a_shelf_count);
-    map.insert(
+    let mut result = HashMap::new();
+    result.insert("elf".to_string(), elf_count);
+    result.insert("elf on a shelf".to_string(), elf_on_a_shelf_count);
+    result.insert(
         "shelf with no elf on it".to_string(),
         shelf_count - elf_on_a_shelf_count,
     );
-    Json(map)
+
+    println!("@elf_count: {raw} => {:?}", result);
+    Json(result)
 }
 
 #[cfg(test)]
