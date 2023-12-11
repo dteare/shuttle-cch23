@@ -1,5 +1,6 @@
 mod day0;
 mod day1;
+mod day11;
 mod day4;
 mod day6;
 mod day7;
@@ -13,7 +14,8 @@ async fn main() -> shuttle_rocket::ShuttleRocket {
         .mount("/4", day4::routes())
         .mount("/6", day6::routes())
         .mount("/7", day7::routes())
-        .mount("/8", day8::routes());
+        .mount("/8", day8::routes())
+        .mount("/11", day11::routes());
 
     Ok(rocket.into())
 }
