@@ -40,7 +40,7 @@ struct BakeRequest {
     recipe: HashMap<String, usize>,
     pantry: HashMap<String, usize>,
 }
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct BakeResponse {
     cookies: usize,
     pantry: HashMap<String, usize>,
@@ -50,7 +50,11 @@ fn bake(cookies: &CookieJar<'_>) -> Result<Json<BakeResponse>, Status> {
     let cookie_string = recipe_from_cookie(cookies)?;
 
     match serde_json::from_str::<BakeRequest>(&cookie_string) {
-        Ok(recipe) => Ok(Json(calc_baked_cookies(recipe.recipe, recipe.pantry))),
+        Ok(recipe) => {
+            let result = calc_baked_cookies(recipe.recipe, recipe.pantry);
+            println!("@bake {cookie_string} => {result:?}");
+            Ok(Json(result))
+        }
         Err(e) => {
             println!("Failed to deserialize recipe {cookie_string}: {e:?}");
             Err(Status::BadRequest)
@@ -69,6 +73,10 @@ fn calc_baked_cookies(
         let mut can_bake = true;
 
         for (ingredient, amount_needed) in &recipe {
+            if amount_needed == &0 {
+                continue;
+            }
+
             match pantry.get(ingredient) {
                 Some(amount) => {
                     if *amount < *amount_needed {
@@ -87,6 +95,10 @@ fn calc_baked_cookies(
         // Remove ingredients from pantry
         cookies += 1;
         for (ingredient, amount_needed) in &recipe {
+            if amount_needed == &0 {
+                continue;
+            }
+
             *pantry.get_mut(ingredient).unwrap() -= *amount_needed;
         }
     }
