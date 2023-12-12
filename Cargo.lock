@@ -265,6 +265,8 @@ dependencies = [
  "shuttle-runtime",
  "thiserror",
  "tokio",
+ "ulid",
+ "uuid",
 ]
 
 [[package]]
@@ -2980,6 +2982,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f720def6ce1ee2fc44d40ac9ed6d3a59c361c80a75a7aa8e75bb9baed31cf2ea"
 dependencies = [
  "serde",
+]
+
+[[package]]
+name = "ulid"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7e37c4b6cbcc59a8dcd09a6429fbc7890286bcbb79215cea7b38a3c4c0921d93"
+dependencies = [
+ "rand",
+ "uuid",
 ]
 
 [[package]]

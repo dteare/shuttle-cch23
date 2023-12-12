@@ -1,10 +1,13 @@
 use chrono::Utc;
 use rocket::http::Status;
+use rocket::serde::json::Json;
 use rocket::{get, post, routes, State};
 use shuttle_persist::{PersistError, PersistInstance};
+use ulid::Ulid;
+use uuid::Uuid;
 
 pub fn routes() -> Vec<rocket::Route> {
-    routes![load, save]
+    routes![load, save, ulids]
 }
 
 pub struct Day12State {
@@ -53,4 +56,24 @@ pub async fn load(packet_id: String, state: &State<Day12State>) -> Result<String
             Err(Status::InternalServerError)
         }
     }
+}
+
+#[post("/ulids", data = "<ulids>")]
+async fn ulids(ulids: Json<Vec<String>>) -> Result<Json<Vec<String>>, Status> {
+    println!("Received {} ULIDs", ulids.len());
+
+    // Convert all the ULIDs to UUIDs
+    let mut uuids = ulids
+        .iter()
+        .map(|ulid| {
+            let ulid = Ulid::from_string(&ulid).map_err(|e| {
+                println!("Failed to parse ULID {ulid}: {e}");
+                Status::BadRequest
+            })?;
+            let uuid: Uuid = ulid.into();
+            Ok(uuid.to_string())
+        })
+        .collect::<Result<Vec<String>, Status>>()?;
+    uuids.reverse();
+    Ok(Json(uuids))
 }
