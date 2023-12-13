@@ -9,7 +9,7 @@ pub fn routes() -> Vec<rocket::Route> {
 #[post("/", data = "<raw>")]
 fn elf_count(raw: &str) -> Json<HashMap<String, usize>> {
     let elf_count = raw.matches("elf").count();
-    let elf_on_a_shelf_count = raw.matches("elf on a shelf").count();
+    let elf_on_a_shelf_count = count_overlapping_occurrences(raw, "elf on a shelf");
     let shelf_count = raw.matches("shelf").count();
 
     let mut result = HashMap::new();
@@ -22,6 +22,24 @@ fn elf_count(raw: &str) -> Json<HashMap<String, usize>> {
 
     println!("@elf_count: {raw} => {:?}", result);
     Json(result)
+}
+
+fn count_overlapping_occurrences(haystack: &str, needle: &str) -> usize {
+    let mut count = 0;
+    let needle_len = needle.len();
+
+    // Iterate over each possible starting position in `haystack`
+    for start in 0..=haystack.len() {
+        // Check if the remaining string is long enough to contain `needle`
+        if start + needle_len <= haystack.len() {
+            // If the substring starting at `start` matches `needle`, increment `count`
+            if &haystack[start..start + needle_len] == needle {
+                count += 1;
+            }
+        }
+    }
+
+    count
 }
 
 #[cfg(test)]
