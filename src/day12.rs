@@ -113,6 +113,7 @@ async fn lsb(
             let seconds = timestamp_ms / 1000;
 
             // Create a DateTime<Utc> object
+            #[allow(deprecated)]
             let datetime: DateTime<Utc> = Utc.timestamp(seconds as i64, 0);
             Ok(datetime)
         })

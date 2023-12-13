@@ -1,10 +1,13 @@
 use crate::day12::Day12State;
+use crate::day13::Day13State;
 use shuttle_persist::PersistInstance;
+//use sqlx::PgPool;
 
 mod day0;
 mod day1;
 mod day11;
 mod day12;
+mod day13;
 mod day4;
 mod day6;
 mod day7;
@@ -13,8 +16,11 @@ mod day8;
 #[shuttle_runtime::main]
 async fn main(
     #[shuttle_persist::Persist] persist: PersistInstance,
+    #[shuttle_persist::Persist] persist2: PersistInstance,
+    /* DB provisioning is fucked on my M3 #[shuttle_shared_db::Postgres] pool: PgPool, */
 ) -> shuttle_rocket::ShuttleRocket {
-    let state = Day12State { persist };
+    let state12 = Day12State { persist };
+    let state13 = Day13State { persist: persist2 };
     let rocket = rocket::build()
         .mount("/", day0::routes())
         .mount("/1", day1::routes())
@@ -24,7 +30,9 @@ async fn main(
         .mount("/8", day8::routes())
         .mount("/11", day11::routes())
         .mount("/12", day12::routes())
-        .manage(state);
+        .mount("/13", day13::routes())
+        .manage(state12)
+        .manage(state13);
 
     Ok(rocket.into())
 }
