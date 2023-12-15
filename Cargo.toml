@@ -19,6 +19,9 @@ thiserror = { version = "1.0.50", features = [] }
 tokio = { version = "1", features = ["full"] }
 ulid = { version = "1.1.0", features = ["uuid"] }
 uuid = "1.6.1"
+serde_json = "1.0.108"
+sha2 = "0.10.8"
+hex = "0.4.3"
 
 [dependencies.rocket_dyn_templates]
 features = ["handlebars"]

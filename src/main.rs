@@ -10,6 +10,7 @@ mod day11;
 mod day12;
 mod day13;
 mod day14;
+mod day15;
 mod day4;
 mod day6;
 mod day7;
@@ -34,6 +35,7 @@ async fn main(
         .mount("/12", day12::routes())
         .mount("/13", day13::routes())
         .mount("/14", day14::routes())
+        .mount("/15", day15::routes())
         .manage(state12)
         .manage(state13)
         .attach(Template::fairing());
